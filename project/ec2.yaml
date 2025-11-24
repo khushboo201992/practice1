@@ -1,0 +1,42 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: A simple CloudFormation template to create an EC2 instance.
+
+Parameters:
+  InstanceTypeParameter:
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+      - t2.small
+      - m5.large
+    Description: Choose an EC2 instance type.
+
+  KeyPairName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Select an existing EC2 Key Pair for SSH access.
+
+Mappings:
+  RegionMap:
+    us-east-1:
+      AMI: ami-0c55b159cbfafe1f0 # Amazon Linux 2 AMI HVM, SSD Volume Type
+    us-west-2:
+      AMI: ami-0abcdef1234567890 # Example AMI for us-west-2, replace with actual
+
+Resources:
+  MyEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      InstanceType: !Ref InstanceTypeParameter
+      KeyName: !Ref KeyPairName
+      Tags:
+        - Key: Name
+          Value: MyCloudFormationEC2Instance
+
+Outputs:
+  InstanceId:
+    Description: The ID of the created EC2 instance.
+    Value: !Ref MyEC2Instance
+  PublicIp:
+    Description: The Public IP address of the EC2 instance.
+    Value: !GetAtt MyEC2Instance.PublicIp
